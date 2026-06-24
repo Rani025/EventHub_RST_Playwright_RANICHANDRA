@@ -10,10 +10,10 @@ test("consfigx-smoke test", async ({page})=>
     await expect(page.getByRole("button",{name:"Sign In"})).toBeVisible();
 });
 
-test("new test for browser page", async({page,browser})=>
-{
+test("new test for browser page", async({page,browser})=>{
  loginpage.openLoginPage(page);
-await page.getByPlaceholder("you@email.com").fill("beginner@sample.com");
+ const emailField=loginpage.getEmailField(page);
+await emailField.fill("beginner@sample.com");
 await expect(page.getByPlaceholder("you@email.com")).toHaveValue("beginner@sample.com");
 const isolatedContext= await browser.newContext();
 const isolatedPage=await isolatedContext.newPage();

@@ -5,15 +5,11 @@ async openLoginPage(page)
 {
     const BASE_URL="https://eventhub.rahulshettyacademy.com" ;
  await page.goto(`${BASE_URL}/login`);
- //await page.waitForTimeout(5000);
-  //await page.waitForLoadState('networkidle') ;
-//await page.pause(); 
+ }
+ getEmailField(page)
+ {
 
-}
-/*async login(page){
-
-this.openLoginPage(page);
-
-}*/
+  return  page.getByPlaceholder("you@email.com");
+ }
 }
 module.exports = { LoginPage } ;
