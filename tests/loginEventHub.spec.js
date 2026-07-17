@@ -57,6 +57,9 @@ const seatCount= await loginpage.parseSeatCount(eventSeats);
 console.log(seatCount);
 expect(seatCount).toBeGreaterThanOrEqual(0);
 const tittle=await eventTitle.textContent();
+const eventPrice=await eventPriceText.textContent();
+console.log("event PRICE")
+console.log(eventPrice);
 await selectedEvent.locator("#book-now-btn").click();
 console.log(await page.url());
 await expect(page).toHaveURL(/events/);
@@ -66,6 +69,11 @@ const EventsPageText=await page.locator("h1").textContent();
 
 await expect(EventsPageText).toContain(tittle);
 
+//.grid .mb-6
+const eventGrids= page.locator(".grid .mb-6 div div");
+const priceOfTickets = await eventGrids.nth(5).textContent();
+console.log(priceOfTickets);
+await expect(priceOfTickets).toContain(eventPrice);
 
 
     });
