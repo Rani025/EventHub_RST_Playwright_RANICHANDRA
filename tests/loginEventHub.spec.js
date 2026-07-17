@@ -25,10 +25,10 @@ await page.locator("select").last().selectOption("");
  test.only("working with different locators" ,async({page})=>{
 const loginpage1 = new LoginPage();
 loginpage1.openLoginPage(page);
-await loginpage1.login(page);
-await page.getByRole('link', { name: /browse events/i }).first().click();
-await expect(page.locator(".text-3xl")).toBeVisible();
-*/
+await loginpage1.login(page);*/
+//await page.getByRole('link', { name: /browse events/i }).first().click();
+//await expect(page.locator(".text-3xl")).toBeVisible();
+
 const  allEvents=await loginpage.getEventCards(page);
 
 await expect(allEvents.first()).toBeVisible();
@@ -56,8 +56,16 @@ const eventSeats=await eventSeatsText.textContent();
 const seatCount= await loginpage.parseSeatCount(eventSeats);
 console.log(seatCount);
 expect(seatCount).toBeGreaterThanOrEqual(0);
-
+const tittle=await eventTitle.textContent();
 await selectedEvent.locator("#book-now-btn").click();
+console.log(await page.url());
+await expect(page).toHaveURL(/events/);
+await page.waitForURL("**/events/**");
+const EventsPageText=await page.locator("h1").textContent();
+//console.log(EventsPageText);
+
+await expect(EventsPageText).toContain(tittle);
+
 
 
     });
