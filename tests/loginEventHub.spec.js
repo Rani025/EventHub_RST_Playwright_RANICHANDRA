@@ -1,5 +1,5 @@
 const {test,expect}=require ('@playwright/test')
-import { EventHubHelpers } from '../helper/helpers';
+import { LoginPage } from '../helper/loginpage';
 
 test("eventHub login",async({page})=>{
 const loginpage = new LoginPage();

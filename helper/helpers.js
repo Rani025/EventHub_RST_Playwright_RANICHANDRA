@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-class EventHubHelpers
+class LoginPage
 {
 
 async openLoginPage(page)
