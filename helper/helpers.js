@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-class LoginPage
+class EventHubHelpers
 {
 
 async openLoginPage(page)
@@ -21,19 +21,17 @@ async openLoginPage(page)
  }
  async getEventCards(page)
  {
-const allEvents=page.locator("a[href^='/events/'] h3");
-await expect(allEvents.first()).toBeVisible();
-const eventCount=await page.locator("a[href^='/events/'] h3").count();
- expect(eventCount).toBeGreaterThanOrEqual(1);
- const selectedEvent=allEvents.filter({
-    hasText:"World Tech Summit"
-        });
- await expect(selectedEvent).toHaveCount(1);
- await expect(selectedEvent).toBeVisible();
-console.log(await selectedEvent.count());
-console.log(await page.locator("a[href^='/events/'] h3").count());
-console.log(await page.locator("a[href^='/events/'] h3").allTextContents());
-
+    //Step 3 — Work with multiple matching event cards
+const allEvents=page.locator("article");
+//a[href^='/events/'] h3
+return allEvents;
+ }
+ async parseSeatCount(eventSeats)
+ {
+    
+  const seat= parseInt(eventSeats);
+    
+return seat;
 
  }
 }

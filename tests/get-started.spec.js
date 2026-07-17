@@ -1,5 +1,5 @@
 const{test,expect}=require('@playwright/test');
-const{LoginPage}=require("../helper/loginpage")
+const{LoginPage}=require("../helper/helpers")
 const loginpage= new LoginPage();
 test("EventHub login page loads", async({page})=>
 {
