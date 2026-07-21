@@ -19,6 +19,13 @@ async openLoginPage(page)
     await page.getByRole("button",{name:'Sign In'}).click();
     await expect(page.getByRole('link', { name: /browse events/i }).first()).toBeVisible();
  }
+ async login(page,emailId,password){
+
+    await page.getByPlaceholder("you@email.com").fill(emailId);
+    await page.getByLabel("Password").fill(password);
+    await page.getByRole("button",{name:'Sign In'}).click();
+    await expect(page.getByRole('link', { name: /browse events/i }).first()).toBeVisible();
+ }
  async getEventCards(page)
  {
     //Step 3 — Work with multiple matching event cards
