@@ -7,7 +7,7 @@ export default defineConfig({
   use: {
  
   headless: false,
-    baseURL:'https://eventhub.rahulshettyacademy.com/login',
+    baseURL:'https://eventhub.rahulshettyacademy.com',
 
     // Base URL to use in actions like `await page.goto('/')`.
    // baseURL: 'https://eventhub.rahulshettyacademy.com/login',
