@@ -12,7 +12,7 @@ async openLoginPage(page)
 
   return  page.getByPlaceholder("you@email.com");
  }
- async login(page){
+ async login1(page){
 
     await page.getByPlaceholder("you@email.com").fill("beginner@sample.com");
     await page.getByLabel("Password").fill("Rani@1234");
