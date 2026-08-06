@@ -1,6 +1,7 @@
 const {test,expect}=require ('@playwright/test')
 import { LoginPage } from '../helper/loginpage';
 import mockData from'../test data/mockEventData.json';
+import {BookingHelper} from '../helper/booking'
 
 test("api mock test",async({page})=>{
   const loginpage = new LoginPage();
@@ -122,13 +123,24 @@ await expect(allEvents.nth(i).locator("#book-now-btn")).toHaveAttribute("href",`
  const eventTitle = await selectedEvent.locator("a[href^='/events/'] h3").textContent();
  const eventPrice=await selectedEvent.locator(".pt-3 p").textContent();
  const eventAvailableSeats= parseInt(await selectedEvent.locator(".pt-3 span").textContent()).toString();
+ 
  //await page.pause();
- const bookNowLink= selectedEvent.locator("#book-now-btn");
- await  bookNowLink.click();
+ const bookNowLink= selectedEvent.getByTestId("book-now-btn");
+
+ const href = await bookNowLink.getAttribute("href");
+ 
+await expect(bookNowLink).toBeVisible();
+//console.log(await bookNowLink.count());
+await Promise.all([
+  page.waitForURL("**/events/**"),
+   bookNowLink.click()
+]);
+ 
+ //await  bookNowLink.click();
 
   //console.log(await page.url());
-  await expect(page).toHaveURL(/events/);
- await page.waitForURL("**/events**");
+  //await expect(page).toHaveURL(/events/);
+ //await page.waitForURL("**/events**");
 
   await expect(page.locator("h1")).toHaveText( eventTitle);
 
@@ -137,13 +149,19 @@ await expect(allEvents.nth(i).locator("#book-now-btn")).toHaveAttribute("href",`
   //console.log(priceOfTickets);
   await expect(priceOfTickets).toContain(eventPrice);
   await expect (await eventGrids.nth(4).locator("span").textContent()).toContain(eventAvailableSeats);
-
-const bookNow = selectedEvent.locator("#book-now-btn");
- await page.pause();
-const href = await bookNow.getAttribute("href");
-await expect(page.url).toContain(href);
-     await page.pause();
+const currentPath=await page.url();
+  await expect(currentPath).toContain(href);
+     const singlePriceOfTicket=Number(priceOfTickets.replace(/[^\d]/g,""));
+     const bookingpage=new BookingHelper();
+     const ticketCount=parseInt(await page.locator(".ticket-count").textContent());
     
+    await  expect(ticketCount).toBe(1);
+     await bookingpage.verifyGrandTotal(page,singlePriceOfTicket);
+     await expect( page.getByRole("button",{name:"+"})).toBeVisible();
+    await page.getByRole("button",{name:"+"}).click();
+     await bookingpage.verifyGrandTotal(page,singlePriceOfTicket);
+
+     //await page.pause();
 
 });
 

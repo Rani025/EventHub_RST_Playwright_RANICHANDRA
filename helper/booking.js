@@ -3,6 +3,19 @@ import{LoginPage} from'../helper/loginpage'
 
 class BookingHelper{
 
+    async verifyGrandTotal(page,singlePriceOfTicket){
+
+const ticketCount=parseInt(await page.locator(".ticket-count").textContent());
+console.log(ticketCount);
+   const totalTextgrid=  page.locator(".p-4>div").filter({hasText:"Total"})
+   const totalText= await totalTextgrid.locator("span").nth(1).textContent();
+   console.log(totalText);
+
+   const total = Number(totalText.replace(/[^\d]/g, ""));
+    const grandTotal=ticketCount*singlePriceOfTicket
+    expect(total).toBe(grandTotal);
+
+    }
     async  createBookingFromFilters(page,{
          searchText, category,city, quantity,customerName, customerEmail, phone} )
          {
