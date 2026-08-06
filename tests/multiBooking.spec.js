@@ -69,7 +69,7 @@ await expect(matchCards[0].locator("div h3")).toHaveText(bookings[0].eventTitle)
 const cardTicketText1=await matchCards[0].locator("span").filter({hasText:" ticket"}).textContent();
 const cardTicketCount1 = cardTicketText1.match(/\d+/)[0];
 await expect(cardTicketCount1).toContain(bookings[0].ticketCount);
-await expect(matchCards[0].locator("p").nth(0)).toHaveText(bookings[0].total)
+await expect(matchCards[0].locator("p").nth(0)).toHaveText(bookings[0].total);
 //second matched card
 await expect(matchCards[1].locator("div h3")).toHaveText(bookings[1].eventTitle);
 const cardTicketText2=await matchCards[1].locator("span").filter({hasText:" ticket"}).textContent();

@@ -1,4 +1,4 @@
-const {test,expect}=require ('@playwright/test')
+const {test,expect,request}=require ('@playwright/test')
 import { LoginPage } from '../helper/loginpage';
 import mockData from'../test data/mockEventData.json';
 import {BookingHelper} from '../helper/booking'
