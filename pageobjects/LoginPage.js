@@ -48,6 +48,11 @@ async openLoginPage()
     await this.signInButton.click();
     await expect(this.browseEventsLink).toBeVisible();
  }
+ async getPage(){
+      await this.page.goto("https://eventhub.rahulshettyacademy.com");
+    
+         await expect(this.browseEventsLink).toBeVisible();
+ }
  async browseEvent(){
 
    await this.browseEventsLink.click();

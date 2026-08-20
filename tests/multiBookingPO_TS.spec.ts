@@ -1,5 +1,5 @@
 
-const{test,expect}=require('@playwright/test')
+import{test,expect}from'@playwright/test'
 import{LoginPage}from '../pageobjects/LoginPage'
 import{BookingPage} from '../pageobjects/BookingPage'
 const {MyBookingPage}=require('../pageobjects/MyBookingPage')

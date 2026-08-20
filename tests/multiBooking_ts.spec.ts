@@ -1,7 +1,7 @@
 
 import {test,expect} from  '@playwright/test'
-import{LoginPage}from '../helper_TS/loginpage'
-import{BookingHelper} from '../helper_TS/booking'
+import{LoginPage}from '../helper_TS/loginpage.js'
+import{BookingHelper} from '../helper_TS/booking.js'
 const email= "beginner@sample.com";
 const password= "Rani@1234" ;
 const bookings:any=[];
@@ -57,7 +57,7 @@ await page.goto("/bookings");
 const mybooking= page.locator("div h1");
 await expect(mybooking).toBeVisible();
 await expect(mybooking.getByText("My Bookings")).toHaveText("My Bookings");
-const matchCards =[];
+const matchCards:any =[];
  matchCards.push(await bookingobjects.findBookingCardByRef(page,bookings[0].bookingRef));
  matchCards.push(await bookingobjects.findBookingCardByRef(page, bookings[1].bookingRef));
 

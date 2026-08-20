@@ -1,8 +1,8 @@
 const { test, expect, request } = require('@playwright/test')
-//import { LoginPage } from '../helper/loginpage'
-import { BookingHelper } from '../helper/booking'
+import{LoginPage} from'../pageobjects/LoginPage'
+import { MyBookingPage } from '../pageobjects/MyBookingPage'
 
-const bookingobjects = new BookingHelper();
+//const bookingobjects = new BookingHelper();
 let apiContext;
 const loginPayLoad = {
     email: "beginner@sample.com",
@@ -88,16 +88,10 @@ test("Create API bookings ", async ({ browser }) => {
     await page.addInitScript(value => {
         window.localStorage.setItem('eventhub_token', value);
     }, token);
-    await page.goto("https://eventhub.rahulshettyacademy.com");
-
-    await expect(page.getByRole('link', { name: /browse events/i }).first()).toBeVisible();
-
-
-    await page.pause();
-
-
-
-    // await expect(eventApiBookingData.event.title).toBe("Hollywood Monsoon Night — Los Angeles");
+    const loginPage=new LoginPage(page);
+      await loginPage.getPage();
+   const mybookingObject=new MyBookingPage(page);
+    //await page.pause();
     await expect(eventApiBookingData.bookingRef).not.toBe("");
     await expect(eventApiBookingData.quantity).toBe(2);
     console.log("first assertion");
@@ -107,14 +101,12 @@ test("Create API bookings ", async ({ browser }) => {
     await expect(matchEventApiResponseData.quantity).toBe(eventApiBookingData.quantity);
     await expect(matchEventApiResponseData.totalPrice).toBe(eventApiBookingData.totalPrice);
     //checking matchacrd in UI
+
     await page.getByTestId("nav-bookings").click();
     //page.goto("/bookings")
-    console.log("Current URL:", page.url());
     matchcard = await page.getByTestId("booking-card").filter({ hasText: eventApiBookingData.bookingRef });
-    await page.pause();
+    //await page.pause();
     await expect(matchcard).toBeVisible();
-    console.log("matchcard", await matchcard.innerText());
-
     await expect(matchcard.locator("div h3")).toHaveText(eventApiBookingData.event.title);
     const cardTicketText = await matchcard.locator("span").filter({ hasText: " ticket" }).textContent();
     const cardTicketCount = cardTicketText.match(/\d+/)[0];
