@@ -1,0 +1,19 @@
+[{
+    "searchText": "World",
+    "category": "Conference",
+    "city": "Hyderabad",
+    "quantity": 1,
+    "customerName": "Rani",
+    "customerEmail": "rani@email.com",
+    "phone": "1234567890"
+},
+{
+            "searchText": "Dilli",
+            "category": "Festival",
+            "city": "Delhi",
+            "quantity": 2, 
+            "customerName": "Rani",
+            "customerEmail": "rani@email.com",
+            "phone": "1234567890"
+}
+]

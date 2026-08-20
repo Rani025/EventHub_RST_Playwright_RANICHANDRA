@@ -41,8 +41,8 @@ class BookingPage {
 
         return this.allEvents.filter({ hasText: searchText });
     }
-    async createBookingFromFilters(
-        searchText, category, city, quantity, customerName, customerEmail, phone ) {
+    async createBookingFromFilters({
+        searchText, category, city, quantity, customerName, customerEmail, phone }) {
 
 
         await this.searchBar.fill(searchText);
