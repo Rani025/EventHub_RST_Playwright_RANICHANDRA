@@ -1,10 +1,10 @@
 const{test,expect}=require('@playwright/test');
 const{LoginPage}=require("../helper/loginpage")
-const loginpage= new LoginPage();
+const loginpage= new LoginPage(page);
 test("EventHub login page loads", async({page})=>
 {
  console.log("test1 started");
- loginpage.openLoginPage(page);
+ loginpage.openLoginPage();
  await expect(page.getByPlaceholder("you@email.com")).toBeVisible();
 
 await expect(page.getByRole("button",{name:'Sign In'})).toHaveText("Sign In");
@@ -16,7 +16,7 @@ console.log("test1 ended");
 test("login page second test", async({page})=>
 {
  console.log("test2 started");
- loginpage.openLoginPage(page);
+ loginpage.openLoginPage();
   
   await expect(page.getByLabel("Password")).toBeVisible();
   await expect(page).toHaveURL(/.*\/login/);

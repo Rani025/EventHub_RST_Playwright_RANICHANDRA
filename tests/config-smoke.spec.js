@@ -1,6 +1,6 @@
 const{test,expect} = require('@playwright/test');
 const{LoginPage}=require("../helper/loginpage");
-const loginpage=new LoginPage();
+let loginpage;
 const BASE_URL="https://eventhub.rahulshettyacademy.com" ;
 test("consfigx-smoke test", async ({page})=>
      {
@@ -11,8 +11,8 @@ test("consfigx-smoke test", async ({page})=>
 });
 
 test("new test for browser page", async({page,browser})=>{
- loginpage.openLoginPage(page);
- const emailField=loginpage.getEmailField(page);
+    loginpage=new LoginPage(page);
+ const emailField=loginpage.getEmailField();
 await emailField.fill("beginner@sample.com");
 await expect(page.getByPlaceholder("you@email.com")).toHaveValue("beginner@sample.com");
 const isolatedContext= await browser.newContext();

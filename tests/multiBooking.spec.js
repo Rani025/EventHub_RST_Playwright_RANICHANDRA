@@ -1,25 +1,29 @@
 const{test,expect}=require('@playwright/test')
-import{LoginPage}from '../helper/loginpage'
-import{BookingHelper} from '../helper/booking'
+import{LoginPage}from '../pageobjects/LoginPage'
+import{BookingPage} from '../pageobjects/BookingPage'
+const {MyBookingPage}=require('../pageobjects/MyBookingPage')
 const email= "beginner@sample.com";
 const password= "Rani@1234" ;
 const bookings=[];
-const bookingobjects = new BookingHelper();
+let bookingobjects ;
+ let myBookingPagObject ;
 let webContext;
 
 test.beforeAll("Create two bookings and preserve both runtime payloads",async ({browser})=>{
 const context=await browser.newContext();
 const page=await context.newPage();
-    const loginPage = new LoginPage();
-    await loginPage.openLoginPage(page);
-    await loginPage.login(page,email,password);
+    const loginPage = new LoginPage(page);
+    bookingobjects = new BookingPage(page);
+   
+    await loginPage.openLoginPage();
+    await loginPage.login(email,password);
     await context.storageState({path:'storagestate.json'})
     webContext=await browser.newContext({storageState:'storagestate.json'});
-    await expect(page.getByRole('link', { name: /browse events/i }).first()).toBeVisible();
-await page.getByRole('link', { name: /browse events/i }).first().click();
-//booking
+await loginPage.browseEvent();
 
-const bookingOne= await bookingobjects.createBookingFromFilters(page,
+
+
+const bookingOne= await bookingobjects.createBookingFromFilters(
     {searchText: "World",
     category: "Conference",
     city: "Hyderabad",
@@ -29,8 +33,8 @@ const bookingOne= await bookingobjects.createBookingFromFilters(page,
     phone: "1234567890"});
     await bookings.push(bookingOne);
    // await page.pause();
-    await page.getByTestId("nav-events").click();
-    const bookingTwo=await bookingobjects.createBookingFromFilters(page, 
+   bookingobjects.navigateEvent();
+    const bookingTwo=await bookingobjects.createBookingFromFilters( 
         {   searchText: "Dilli",
             category: "Festival",
             city: "Delhi",
@@ -40,68 +44,46 @@ const bookingOne= await bookingobjects.createBookingFromFilters(page,
             phone: "1234567890" })
     await bookings.push(bookingTwo);
     
-   await expect(bookingOne.eventTitle).toBe("World Tech Summit");
-    await expect(bookingOne.bookingRef).not.toBe("");
-    await expect(bookingOne.ticketCount).toBe("1");
-    console.log("first assertion");
-    await expect(bookingOne.bookingRef).not.toBe(bookingTwo.bookingRef);
-    await expect(bookingOne.eventTitle).not.toBe(bookingTwo.eventTitle);
-    await expect(bookingTwo.ticketCount).toBe("2");
-     console.log("second assertion");
+    await expect(bookings[0].eventTitle).toBe("World Tech Summit");
+        await expect(bookings[0].bookingRef).not.toBe("");
+        await expect(bookings[0].ticketCount).toBe("1");
+        console.log("first assertion");
+        await expect(bookings[0].bookingRef).not.toBe(bookings[1].bookingRef);
+        await expect(bookings[0].eventTitle).not.toBe(bookings[1].eventTitle);
+        await expect(bookings[1].ticketCount).toBe("2");
+        console.log("second assertion");
+
+  
+   
         });
 //booking page to find matchcards
 test("Reconcile My Bookings cards with the correct detail pages",async()=>{
 const page=await webContext.newPage();
+ myBookingPagObject = new MyBookingPage(page);
 await page.goto("/bookings");
 const mybooking= page.locator("div h1");
 await expect(mybooking).toBeVisible();
 await expect(mybooking.getByText("My Bookings")).toHaveText("My Bookings");
 const matchCards =[];
- matchCards.push(await bookingobjects.findBookingCardByRef(page,bookings[0].bookingRef));
- matchCards.push(await bookingobjects.findBookingCardByRef(page, bookings[1].bookingRef));
+await page.pause();
+console.log("TEST page URL:", page.url());
+console.log("POM page URL:", myBookingPagObject.page.url());
+ matchCards.push(await myBookingPagObject.findBookingCardByRef(bookings[0].bookingRef));
 
- await expect(matchCards[0]).toBeVisible();
- await expect(matchCards[1]).toBeVisible();
- await expect(matchCards[0].getByText("confirmed")).toHaveText("confirmed")
- await expect(matchCards[1].getByText("confirmed")).toHaveText("confirmed")
+ matchCards.push(await myBookingPagObject.findBookingCardByRef(bookings[1].bookingRef));
+ await myBookingPagObject.twoBookingComparison(matchCards,bookings);
 
-await expect(matchCards[0].locator("div h3")).toHaveText(bookings[0].eventTitle);
-const cardTicketText1=await matchCards[0].locator("span").filter({hasText:" ticket"}).textContent();
-const cardTicketCount1 = cardTicketText1.match(/\d+/)[0];
-await expect(cardTicketCount1).toContain(bookings[0].ticketCount);
-await expect(matchCards[0].locator("p").nth(0)).toHaveText(bookings[0].total);
-//second matched card
-await expect(matchCards[1].locator("div h3")).toHaveText(bookings[1].eventTitle);
-const cardTicketText2=await matchCards[1].locator("span").filter({hasText:" ticket"}).textContent();
-const cardTicketCount2 = cardTicketText2.match(/\d+/)[0];
-await expect(cardTicketCount2).toContain(bookings[1].ticketCount);
-await expect(matchCards[1].locator("p").nth(0)).toHaveText(bookings[1].total);
-await expect(await matchCards[0].locator(".booking-ref").textContent()).not.toBe(await matchCards[1].locator(".booking-ref").textContent());
-const eventTitle1=await matchCards[0].locator("div h3").textContent();
-const eventTitle2=await matchCards[1].locator("div h3").textContent();
-
+ 
 //open first booking detail
-await bookingobjects.openBookingDetailFromCard(page,matchCards[0]);
-const breadcrumb1= page.locator("div nav");
-await expect(breadcrumb1.locator("span").last()).toHaveText(bookings[0].bookingRef);
-await expect(page.locator("h1")).toHaveText(eventTitle1);
+//await myBookingPagObject.openBookingDetailFromCard(matchCards[0]);
+await myBookingPagObject.confirmFirstBookingInOpenDetail(matchCards[0],bookings);
 
-const email1=page.locator("div .gap-4").filter({hasText:"Email"});
-await expect( email1.locator("span").nth(1)).toHaveText(bookings[0].customerEmail);
-const ticketDetails1=await page.locator("div .gap-4").filter({hasText:"Tickets"});
-await expect(ticketDetails1.locator("span").nth(1)).toHaveText(cardTicketCount1);
- const bookingId= await page.locator("div .gap-4").filter({hasText:"Booking ID"});
- await expect(bookingId.locator("span").nth(1)).toHaveText(/^#\d+$/);
 
  //opensecond  booking detail 2
  await page.goto("/bookings");
- await bookingobjects.openBookingDetailFromCard(page,matchCards[1]);
-const breadcrumb2= page.locator("div nav");
-await expect( breadcrumb2.locator("span").nth(1)).toHaveText(bookings[1].bookingRef);
-await expect(page.locator("h1")).toHaveText(eventTitle2);
-const ticketDetails2=await page.locator("div .gap-4").filter({hasText:"Tickets"});
-await expect(ticketDetails1.locator("span").nth(1)).toHaveText(cardTicketCount2);
-await expect(breadcrumb2.locator("span").nth(1)).not.toHaveText(bookings[0].bookingRef);
+ //await myBookingPagObject.openBookingDetailFromCard();
+ await myBookingPagObject.confirmSecondBookingInOpenDetail(matchCards[1],bookings);
+
 
 
 });

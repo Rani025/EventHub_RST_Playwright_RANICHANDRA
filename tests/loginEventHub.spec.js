@@ -2,9 +2,9 @@ const { test, expect } = require('@playwright/test')
 import { LoginPage } from '../helper/loginpage';
 
 test("eventHub login", async ({ page }) => {
-  const loginpage = new LoginPage();
-  await loginpage.openLoginPage(page);
-  await loginpage.login(page);
+  const loginpage = new LoginPage(page);
+  await loginpage.openLoginPage();
+  await loginpage.login();
   await page.getByRole('link', { name: /browse events/i }).first().click();
   await expect(page.locator(".text-3xl")).toHaveText("Upcoming Events");
   await page.getByPlaceholder("Search events, venues…").fill("World");
@@ -29,7 +29,7 @@ await loginpage1.login(page);*/
   //await page.getByRole('link', { name: /browse events/i }).first().click();
   //await expect(page.locator(".text-3xl")).toBeVisible();
 
-  const allEvents = await loginpage.getEventCards(page);
+  const allEvents = await loginpage.getEventCards();
 
   await expect(allEvents.first()).toBeVisible();
   //console.log(await allEvents.count());
@@ -83,7 +83,7 @@ await loginpage1.login(page);*/
   await page.locator("select").first().selectOption("");
   await page.locator("select").last().selectOption("");
   //await page.pause();
-  const allEvents1 = await loginpage.getEventCards(page);
+  const allEvents1 = await loginpage.getEventCards();
   await expect(allEvents1.last()).toBeVisible();
   const count2 = await allEvents1.count()
   await expect(count2).toBeGreaterThanOrEqual(3);
