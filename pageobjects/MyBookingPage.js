@@ -15,6 +15,8 @@ class MyBookingPage {
 
         this.ticketDetails = this.page.locator("div .gap-4")
             .filter({ hasText: "Tickets" });
+        this.totalPayment = this.page.locator("div .flex")
+            .filter({ hasText: "Total Paid" });
 
         this.bookingIdDetails = this.page.locator("div .gap-4")
             .filter({ hasText: "Booking ID" });
@@ -65,6 +67,16 @@ class MyBookingPage {
         await expect(matchingcard).toBeVisible();
         return matchingcard;
     }
+    async patchedCardVerify(patchCards, patchedData) {
+        await expect(await this.getEventTitle(patchCards)).toBe(patchedData.event.title);
+        this.cardTicketCount1 = await this.getTicketCount(patchCards);
+        await expect(this.cardTicketCount1).toContain(patchedData.quantity.toString());
+        const expectedPatchedPrice = `$${Number(patchedData.totalPrice).toLocaleString()}`;
+        await expect(patchCards.locator("p").nth(0)).toHaveText(expectedPatchedPrice);
+    }
+    async verifyLiveEventInPatchedApi(livecards, liveBooking) {
+       await expect(await this.getEventTitle(livecards)).toBe(liveBooking.event.title);
+    }
     async twoBookingComparison(matchCards, bookings) {
 
         await expect(matchCards[0]).toBeVisible();
@@ -104,22 +116,33 @@ class MyBookingPage {
 
 
     }
-    async checkAPIBookingInOpenDetail(matchCards,eventApiBookingData){
+    async checkAPIBookingInOpenDetail(matchCards, eventApiBookingData) {
 
-         await this.openBookingDetailFromCard(matchCards);
+        await this.openBookingDetailFromCard(matchCards);
         await expect(this.getBookingRefFromBreadCrum()).toHaveText(eventApiBookingData.bookingRef);
         await expect(this.pageTitle).toHaveText(eventApiBookingData.event.title);
         await expect(this.emailDetails.locator("span").nth(1)).toHaveText(eventApiBookingData.customerEmail);
         await expect(this.ticketDetails.locator("span").nth(1)).toHaveText(String(eventApiBookingData.quantity));
-        
-    }
-   async  checkDeletedBooking(bookingRef){
 
-          const deletedBookingCard =this.bookingCard
-        .filter({
-            hasText: bookingRef
-        });
-    await expect(deletedBookingCard).not.toBeVisible();
+    }
+    async checkDeletedBooking(bookingRef) {
+
+        const deletedBookingCard = this.bookingCard
+            .filter({
+                hasText: bookingRef
+            });
+        await expect(deletedBookingCard).not.toBeVisible();
+    }
+    async confirmTotalByRefindPatchCard(expectedPatchedPrice,patchCard) {
+               
+        const totalDetailPrice = this.totalPayment.locator("span").nth(1);
+         await expect(totalDetailPrice).toHaveText(expectedPatchedPrice);
+        const totalDetailPriceValue = await totalDetailPrice.textContent();
+        await this.page.goto("/bookings");
+        await this.page.waitForURL("/bookings");
+        const bookingPriceTotal = patchCard.locator("p").nth(0);
+        await expect(bookingPriceTotal).toHaveText(totalDetailPriceValue);
+
     }
 
     async confirmFirstBookingInOpenDetail(matchcard, bookings) {
