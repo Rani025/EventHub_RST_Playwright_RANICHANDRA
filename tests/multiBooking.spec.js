@@ -52,9 +52,8 @@ test("Reconcile My Bookings cards with the correct detail pages", async () => {
     const page = await webContext.newPage();
     myBookingPagObject = new MyBookingPage(page);
     await page.goto("/bookings");
-    const mybooking = page.locator("div h1");
-    await expect(mybooking).toBeVisible();
-    await expect(mybooking.getByText("My Bookings")).toHaveText("My Bookings");
+    await myBookingPagObject.checkMyBooking();
+   
     const matchCards = [];
     //await page.pause();
     console.log("TEST page URL:", page.url());

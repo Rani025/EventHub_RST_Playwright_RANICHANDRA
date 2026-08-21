@@ -5,16 +5,18 @@ class MyBookingPage {
     constructor(page) {
 
         this.page = page;
+        this.mybooking = this.page.locator("div h1");
         this.bookingCard = this.page.getByTestId("booking-card");
         this.breadcrumb1 = this.page.locator("div nav");
-        this.pageTitle =this.page.locator("h1");
-        this.emailDetails =this.page.locator("div .gap-4")
+
+        this.pageTitle = this.page.locator("h1");
+        this.emailDetails = this.page.locator("div .gap-4")
             .filter({ hasText: "Email" });
 
-    this.ticketDetails =this.page.locator("div .gap-4")
+        this.ticketDetails = this.page.locator("div .gap-4")
             .filter({ hasText: "Tickets" });
 
-    this.bookingIdDetails =this.page.locator("div .gap-4")
+        this.bookingIdDetails = this.page.locator("div .gap-4")
             .filter({ hasText: "Booking ID" });
 
     }
@@ -47,7 +49,11 @@ class MyBookingPage {
         return this.breadcrumb1.locator("span").last();
 
     }
-    
+    async checkMyBooking() {
+
+        await expect(this.mybooking).toBeVisible();
+        await expect(this.mybooking.getByText("My Bookings")).toHaveText("My Bookings");
+    }
     async findBookingCardByRef(bookingRef) {
 
         console.log(bookingRef);
@@ -81,32 +87,55 @@ class MyBookingPage {
         this.bookingRef1 = await this.getBookingRef(matchCards[0]);
         this.bookingRef2 = await this.getBookingRef(matchCards[1]);
         await expect(this.bookingRef1).not.toBe(this.bookingRef2);
+    }
+    async checkingLiveWithApiEvent(eventApiBookingData) {
+        await this.page.goto("/bookings");
+        const matchCard = await this.findBookingCardByRef(eventApiBookingData.bookingRef);
+        await expect(await this.getEventTitle(matchCard)).toBe(eventApiBookingData.event.title);
+        await expect(await this.getTicketCount(matchCard)).toContain(String(eventApiBookingData.quantity));
+        await expect(this.getTotal(matchCard)).toHaveText(`$${Number(eventApiBookingData.totalPrice).toLocaleString("en-US")}`);
+        return matchCard;
 
     }
+
     async openBookingDetailFromCard(matchCard) {
         await matchCard.getByRole("button", { name: "View Details" }).click();
         await this.page.waitForURL("**/bookings/**");
 
 
     }
+    async checkAPIBookingInOpenDetail(matchCards,eventApiBookingData){
 
+         await this.openBookingDetailFromCard(matchCards);
+        await expect(this.getBookingRefFromBreadCrum()).toHaveText(eventApiBookingData.bookingRef);
+        await expect(this.pageTitle).toHaveText(eventApiBookingData.event.title);
+        await expect(this.emailDetails.locator("span").nth(1)).toHaveText(eventApiBookingData.customerEmail);
+        await expect(this.ticketDetails.locator("span").nth(1)).toHaveText(String(eventApiBookingData.quantity));
+        
+    }
+   async  checkDeletedBooking(bookingRef){
 
-    async confirmFirstBookingInOpenDetail(matchcard,bookings) {
+          const deletedBookingCard =this.bookingCard
+        .filter({
+            hasText: bookingRef
+        });
+    await expect(deletedBookingCard).not.toBeVisible();
+    }
 
+    async confirmFirstBookingInOpenDetail(matchcard, bookings) {
 
-    await this.openBookingDetailFromCard(matchcard);
-
+        await this.openBookingDetailFromCard(matchcard);
         await expect(this.getBookingRefFromBreadCrum()).toHaveText(bookings[0].bookingRef);
-        await expect(this.pageTitle).toHaveText( bookings[0].eventTitle);       
+        await expect(this.pageTitle).toHaveText(bookings[0].eventTitle);
         await expect(this.emailDetails.locator("span").nth(1)).toHaveText(bookings[0].customerEmail);
-         await expect(this.ticketDetails.locator("span").nth(1)).toHaveText(bookings[0].ticketCount);
+        await expect(this.ticketDetails.locator("span").nth(1)).toHaveText(bookings[0].ticketCount);
         await expect(this.bookingIdDetails.locator("span").nth(1)).toHaveText(/^#\d+$/);
 
 
     }
-    async confirmSecondBookingInOpenDetail(matchcard,bookings) {
+    async confirmSecondBookingInOpenDetail(matchcard, bookings) {
 
-    
+
         await this.openBookingDetailFromCard(matchcard);
         await expect(this.getBookingRefFromBreadCrum()).toHaveText(bookings[1].bookingRef);
         await expect(this.pageTitle).toHaveText(bookings[1].eventTitle);

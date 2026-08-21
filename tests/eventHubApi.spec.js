@@ -90,7 +90,7 @@ test("Create API bookings ", async ({ browser }) => {
     }, token);
     const loginPage=new LoginPage(page);
       await loginPage.getPage();
-   const mybookingObject=new MyBookingPage(page);
+   const mybookingPageObject=new MyBookingPage(page);
     //await page.pause();
     await expect(eventApiBookingData.bookingRef).not.toBe("");
     await expect(eventApiBookingData.quantity).toBe(2);
@@ -101,30 +101,9 @@ test("Create API bookings ", async ({ browser }) => {
     await expect(matchEventApiResponseData.quantity).toBe(eventApiBookingData.quantity);
     await expect(matchEventApiResponseData.totalPrice).toBe(eventApiBookingData.totalPrice);
     //checking matchacrd in UI
+    const matchCards = await mybookingPageObject.checkingLiveWithApiEvent(eventApiBookingData);
+    await mybookingPageObject.checkAPIBookingInOpenDetail(matchCards,eventApiBookingData);
 
-    await page.getByTestId("nav-bookings").click();
-    //page.goto("/bookings")
-    matchcard = await page.getByTestId("booking-card").filter({ hasText: eventApiBookingData.bookingRef });
-    //await page.pause();
-    await expect(matchcard).toBeVisible();
-    await expect(matchcard.locator("div h3")).toHaveText(eventApiBookingData.event.title);
-    const cardTicketText = await matchcard.locator("span").filter({ hasText: " ticket" }).textContent();
-    const cardTicketCount = cardTicketText.match(/\d+/)[0];
-    await expect(cardTicketCount).toContain(String(eventApiBookingData.quantity));
-    const cardTotalText = await matchcard.locator("p").nth(0).textContent();
-    const cardTotal = cardTotalText.replace(/[^\d]/g, "");
-    await expect(cardTotal).toBe(eventApiBookingData.totalPrice);
-    //open first booking detail
-    //Open View Details from that card and confirm the detail path, breadcrumb/reference, event details, payment summary, and customer email all match the stored API booking data.
-    await bookingobjects.openBookingDetailFromCard(page, matchcard);
-    const breadcrumb1 = page.locator("div nav");
-    await expect(breadcrumb1.locator("span").last()).toHaveText(eventApiBookingData.bookingRef);
-    await expect(page.locator("h1")).toHaveText(eventApiBookingData.event.title);
-
-    const email1 = page.locator("div .gap-4").filter({ hasText: "Email" });
-    await expect(email1.locator("span").nth(1)).toHaveText(eventApiBookingData.customerEmail);
-    const ticketDetails = await page.locator("div .gap-4").filter({ hasText: "Tickets" });
-    await expect(ticketDetails.locator("span").nth(1)).toHaveText(String(eventApiBookingData.quantity));
     // delete booking 
 
     const deleteBookingResponse = await apiContext.delete(`https://api.eventhub.rahulshettyacademy.com/api/bookings/${eventApiBookingData.id}`,
@@ -150,15 +129,12 @@ test("Create API bookings ", async ({ browser }) => {
             booking.bookingRef === eventApiBookingData.bookingRef
     );
     await expect(deletedBooking).toBeUndefined();
+
     await page.goto("https://eventhub.rahulshettyacademy.com/bookings");
     //await page.getByTestId("nav-bookings").click();
     await page.waitForURL("/bookings");
-
-    const deletedBookingCard = page.getByTestId("booking-card")
-        .filter({
-            hasText: eventApiBookingData.bookingRef
-        });
-    await expect(deletedBookingCard).not.toBeVisible();
+  await mybookingPageObject.checkDeletedBooking(eventApiBookingData.bookingRef);
+  
 });
 
 test.afterAll(async () => {
