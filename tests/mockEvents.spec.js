@@ -4,7 +4,7 @@ import mockData from'../test data/mockEventData.json';
 import {BookingHelper} from '../helper/booking'
 
 test("api mock test",async({page})=>{
-  const loginpage = new LoginPage();
+  const loginpage = new LoginPage(page);
    await page.route("**/api/events**",
      async route=>{
 
@@ -88,9 +88,9 @@ if (city) {
   //operations after mocked events   
   await loginpage.openLoginPage(page);
   await loginpage.login1(page); 
- await page.goto("/events");
-     await page.waitForResponse("**/api/events**")
-     await expect(page.locator(".text-3xl")).toHaveText("Upcoming Events");
+   await page.goto("/events");
+        await page.waitForResponse("**/api/events**")
+          await expect(page.locator(".text-3xl")).toHaveText("Upcoming Events");
      const allEvents = await loginpage.getEventCards(page);
 
   await expect(allEvents.first()).toBeVisible();

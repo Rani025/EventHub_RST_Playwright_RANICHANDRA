@@ -18,7 +18,7 @@ constructor(page){
         }).first();
 
     this.eventCards =
-        this.page.locator("article");
+       this.page.locator("article");
 
 
 }
