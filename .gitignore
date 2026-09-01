@@ -1,0 +1,15 @@
+# Environment variables
+.env
+
+# Test credentials
+**/loginTestData.json
+
+# Playwright storage/auth state
+**/storagestate.json
+**/storageState.json
+
+#node.js dependencies
+node_modules/
+
+#playwright test results
+test-results/

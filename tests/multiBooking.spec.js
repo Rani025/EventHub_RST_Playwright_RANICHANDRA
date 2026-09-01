@@ -2,9 +2,12 @@ const { test, expect } = require('@playwright/test')
 import { LoginPage } from '../pageobjects/LoginPage'
 import { BookingPage } from '../pageobjects/BookingPage'
 const { MyBookingPage } = require('../pageobjects/MyBookingPage')
+require('dotenv').config();
+
+
 const createBookingData = JSON.parse(JSON.stringify(require('../test data/bookingData.json')))
 //Json->string->js object
-const loginData = JSON.parse(JSON.stringify(require('../test data/loginTestData.json')));
+//const loginData = JSON.parse(JSON.stringify(require('../test data/loginTestData.json')));
 const bookings = [];
 let bookingobjects;
 let myBookingPagObject;
@@ -17,7 +20,11 @@ test.beforeAll("Create two bookings and preserve both runtime payloads", async (
     bookingobjects = new BookingPage(page);
 
     await loginPage.openLoginPage();
-    await loginPage.login(loginData.email, loginData.password);
+   // await loginPage.login(loginData.email, loginData.password);
+   await loginPage.login(
+    process.env.TEST_EMAIL,
+    process.env.TEST_PASSWORD
+    );
     await context.storageState({ path: 'storagestate.json' })
     webContext = await browser.newContext({ storageState: 'storagestate.json' });
     await loginPage.browseEvent();
@@ -32,7 +39,8 @@ test.beforeAll("Create two bookings and preserve both runtime payloads", async (
             data.customerEmail,
             data.phone)
         await bookings.push(bookingDetail);
-        bookingobjects.navigateEvent();
+
+       await  bookingobjects.navigateEvent();
     }
 
     await expect(bookings[0].eventTitle).toBe("World Tech Summit");
