@@ -1,9 +1,11 @@
 const { expect } = require('@playwright/test')
+const{EventPage}=require("../pageobjects/EventPage");
 
 
 class BookingPage {
     constructor(page) {
         this.page = page;
+        this.upComingEvent=this.page.locator(".text-3xl");
         this.allEvents = this.page.locator("article");
         //this.booklink = eventFilter.getByTestId("book-now-btn");
         this.addButton = this.page.getByRole("button", { name: "+" });
@@ -41,6 +43,69 @@ class BookingPage {
 
         return this.allEvents.filter({ hasText: searchText });
     }
+    async seachAndFilterEvents(searchText, category, city){
+
+        await expect( this.upComingEvent).toHaveText("Upcoming Events");
+        await this.searchBar.fill(searchText);
+        await this.selectCategoryAndCity(category, city);
+        await this.page.waitForLoadState("networkidle");
+
+        //wait expect(allEvents.first()).toBeVisible();
+        this.eventFilter =  this.getEventByFilter(searchText);
+        await expect(this.eventFilter).toBeVisible();
+         await this.assertingFilteredEvent( this.eventFilter);
+
+    }
+    async assertingFilteredEvent( eventFilter){
+
+         await expect(eventFilter.first()).toBeVisible();
+  //console.log(await allEvents.count());
+  const eventCount = await eventFilter.count();
+  await expect(eventCount).toBeGreaterThanOrEqual(1);
+  const selectedEvent = eventFilter.filter({
+    hasText: "World Tech Summit"
+  });
+  await expect(selectedEvent).toHaveCount(1);
+  await expect(selectedEvent).toBeVisible();
+  console.log(await selectedEvent.count());
+
+  //Step 4 — Extract text and reuse it in assertions
+  const eventPriceText = selectedEvent.locator(".pt-3 p");
+  console.log(await eventPriceText.textContent());
+  const eventTitle = selectedEvent.locator("a[href^='/events/'] h3");
+  console.log(await eventTitle.textContent());
+  await expect(eventTitle).toHaveText("World Tech Summit");
+  await expect(eventPriceText).toContainText("$");
+  //await page.pause();
+  const seatCount = parseInt(await selectedEvent.locator(".pt-3 span").textContent());
+  //Parse eventSeatsText using your parseInt
+  
+  console.log(seatCount);
+
+  await expect(seatCount).toBeGreaterThanOrEqual(0);
+  const tittle = await eventTitle.textContent();
+  const eventPrice = await eventPriceText.textContent();
+  console.log("event PRICE")
+  console.log(eventPrice);
+  //Open the correct event using a scoped locator
+  await selectedEvent.locator("#book-now-btn").click();
+   await expect(this.page).toHaveURL(/events/);
+    await this.page.waitForURL("**/events/**");
+    const EventsPageText = await this.page.locator("h1").textContent();
+    //console.log(EventsPageText);
+  
+    await expect(EventsPageText).toContain(tittle);
+  
+    //.grid .mb-6
+    const eventGrids = this.page.locator(".grid .mb-6 div div");
+    const priceOfTickets = await eventGrids.nth(5).textContent();
+    console.log(priceOfTickets);
+    await expect(priceOfTickets).toContain(eventPrice);
+  //const eventPage=new EventPage(this.page);
+ // eventPage.checkingBookedFiteredEventInEventPage();
+
+
+    }
     async createBookingFromFilters(
         searchText, category, city, quantity, customerName, customerEmail, phone ) {
 
@@ -51,7 +116,7 @@ class BookingPage {
 
         //wait expect(allEvents.first()).toBeVisible();
         this.eventFilter =  this.getEventByFilter(searchText);
-        await expect(eventFilter).toBeVisible();
+        await expect(this.eventFilter).toBeVisible();
 
         this.bookNowButton = this.eventFilter.getByTestId("book-now-btn");
         await expect(this.bookNowButton).toBeVisible();

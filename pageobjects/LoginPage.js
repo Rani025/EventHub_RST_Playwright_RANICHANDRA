@@ -3,6 +3,7 @@ class LoginPage
 {
 constructor(page){
    this.page=page;
+   this.signInText=this.page.locator(".text-xl");
     this.emailField =
         this.page.getByPlaceholder("you@email.com");
 
@@ -22,15 +23,37 @@ constructor(page){
 
 
 }
+async assertingLoginPage(){
+
+    await expect(this.emailField ).toBeVisible();
+
+ await expect(this.signInButton).toHaveText("Sign In");
+}
+async secondAssertionLogin(){
+
+    await expect(this.passwordField ).toBeVisible();
+    await  expect(this.page).toHaveURL(/.*\/login/);
+    await expect(this.signInText).toHaveText("Sign in to EventHub");
+}
+async isolatedPageChecking(){
+    await expect(this.signInText).toHaveText("Sign in to EventHub");
+await expect(this.emailField).toHaveValue("");
+}
 async openLoginPage()
 {
     const BASE_URL="https://eventhub.rahulshettyacademy.com" ;
- await this.page.goto(`${BASE_URL}/login`);
+ await this.page.goto(`${BASE_URL}/login`,
+     {waitUntill: "domcontentloaded"});
  }
- getEmailField()
+ async opneLoginByConfiguredURL(){
+     await this.page.goto('/login');
+      await expect(this.page).toHaveTitle(/EventHub/i);
+ }
+ async getEmailField()
  {
-
-  return  this.emailField;
+await this.emailField.fill("beginner@sample.com");
+await expect(this.emailField).toHaveValue("beginner@sample.com");
+ // return  this.emailField;
  }
  async login1(){
 

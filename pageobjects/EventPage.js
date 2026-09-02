@@ -5,8 +5,34 @@ class EventPage {
 
   constructor(page) {
     this.page = page;
+    this.EventSearch = this.page.getByPlaceholder("Search events, venues…");
+    this.Categiry = this.page.locator("select").first();
+    this.city = this.page.locator("select").last();
+    this.allEvents = this.page.locator("article");
+  }
 
-
+  async unFilteredComparisonOfEvents() {
+    await this.page.goto("/events");
+    await this.EventSearch.clear();
+    await this.Categiry.selectOption("");
+    await this.city.selectOption("");
+    //await page.pause();
+    //const allEvents1 = await loginpage.getEventCards();
+    await expect(this.allEvents.last()).toBeVisible();
+    const count = await this.allEvents.count()
+    await expect(count).toBeGreaterThanOrEqual(3);
+    console.log(count);
+    //a[href^='/events/'] h3
+    const eventTittles = this.allEvents.locator("h3");
+    const firstTittle = await eventTittles.first().textContent();
+    console.log(firstTittle);
+    const lastTittle = await eventTittles.last().textContent();
+    const secondTittle = await eventTittles.nth(1).textContent();
+    console.log(lastTittle);
+    console.log(secondTittle);
+    const allTittles = await eventTittles.allTextContents();
+    await expect(allTittles).not.toBe("");
+    await expect(firstTittle).not.toBe(lastTittle);
   }
   async checkEventListWithMockEvents(mockData) {
 
@@ -31,8 +57,8 @@ class EventPage {
 
     }
   }
-    
-  }
+
+}
 
 
 

@@ -1,13 +1,13 @@
 const{test,expect}=require('@playwright/test');
-const{LoginPage}=require("../helper/loginpage")
-const loginpage= new LoginPage(page);
+const{LoginPage}= require("../pageobjects/LoginPage");
+let loginpage;
 test("EventHub login page loads", async({page})=>
 {
  console.log("test1 started");
- loginpage.openLoginPage();
- await expect(page.getByPlaceholder("you@email.com")).toBeVisible();
+ loginpage= new LoginPage(page);
+ await loginpage.openLoginPage();
+  await loginpage.assertingLoginPage()
 
-await expect(page.getByRole("button",{name:'Sign In'})).toHaveText("Sign In");
 console.log("test1 ended");
 
 });
@@ -16,11 +16,10 @@ console.log("test1 ended");
 test("login page second test", async({page})=>
 {
  console.log("test2 started");
- loginpage.openLoginPage();
-  
-  await expect(page.getByLabel("Password")).toBeVisible();
-  await expect(page).toHaveURL(/.*\/login/);
-  await expect(page.locator(".text-xl")).toHaveText("Sign in to EventHub");
+ loginpage= new LoginPage(page);
+ await loginpage.openLoginPage();
+ await loginpage.secondAssertionLogin();  
+ 
  
 console.log("test2 ended");
 });
